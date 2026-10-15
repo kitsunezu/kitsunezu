@@ -18,3 +18,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Docker build and runner stages use digest-pinned Node.js 24 LTS images. Refresh the official `node:24-slim` and `node:24-alpine` digests deliberately when updating base-image security fixes.
 - The production runner applies `apk upgrade --no-cache` before removing npm, npx, and Yarn so Alpine security fixes are included in the candidate image.
 - The production runner intentionally removes npm, npx, and Yarn; `node server.js` is the only runtime entrypoint.
+
+## Deployment verification
+
+- Production builds receive `BUILD_REVISION` from the exact GitHub commit. The workflow polls public release/health endpoints until their revision matches that commit; an old healthy image cannot satisfy deployment success.
+- The live Coolify Compose resource is managed separately from the repository example. App images must use `pull_policy: always`; preserve the existing persistent volumes and runtime environment when editing it.
+- Repository Compose files are examples; runtime changes must be applied deliberately in the existing Coolify resource. CI publishes images and redeploys that saved definition; it does not import example Compose or recreate database volumes.

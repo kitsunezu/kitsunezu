@@ -43,6 +43,10 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+ARG BUILD_REVISION=development
+RUN printf '{"revision":"%s"}\n' "$BUILD_REVISION" > /app/public/deployment-version.json
+LABEL org.opencontainers.image.revision=$BUILD_REVISION
+
 USER nextjs
 
 EXPOSE 3000
