@@ -25,14 +25,15 @@ export function ArchifyDiagram() {
     return () => window.cancelAnimationFrame(frame);
   }, [resolvedTheme]);
 
-  const diagramSrc = `/architecture/kitsunezu-portfolio.html?embed=1&theme=${diagramTheme}&lang=${diagramLocale}`;
-  const fullDiagramHref = `/architecture/kitsunezu-portfolio.html?lang=${diagramLocale}`;
+  const diagramPath = `/architecture/kitsunet-homelab.${diagramLocale}.html`;
+  const diagramSrc = `${diagramPath}?embed=1&theme=${diagramTheme}`;
+  const fullDiagramHref = `${diagramPath}?theme=${diagramTheme}`;
 
   return (
-    <figure aria-labelledby="portfolio-architecture-title">
+    <figure aria-labelledby="homelab-architecture-title">
       <figcaption className="mb-4 flex items-center justify-between border-b border-border/70 pb-4">
         <h3
-          id="portfolio-architecture-title"
+          id="homelab-architecture-title"
           className="text-2xl font-semibold text-foreground"
         >
           {t("architecture_caption")}
@@ -65,12 +66,12 @@ export function ArchifyDiagram() {
       </figcaption>
 
       <div className="overflow-hidden rounded-xl border border-border/70 bg-card/85 shadow-sm">
-        <div className="aspect-[1352/580] w-full sm:aspect-[1352/548]">
+        <div className="relative w-full pt-[calc(100%*750/1390+1rem)]">
           <iframe
-            title="Kitsunezu portfolio architecture and deployment flow"
+            title={t("architecture.title")}
             src={diagramSrc}
             loading="lazy"
-            className="h-full w-full border-0 outline-none focus:outline-none"
+            className="absolute inset-0 h-full w-full border-0 outline-none focus:outline-none"
           />
         </div>
       </div>

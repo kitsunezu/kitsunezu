@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Kitsunet Homelab 構成",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1390,
+      750
+    ],
+    "views": [
+      {
+        "id": "public",
+        "label": "公開サービス",
+        "focus": [
+          "clients",
+          "gateway",
+          "edge",
+          "apps",
+          "unraid"
+        ],
+        "note": "公開 HTTPS 入口からアプリとデータサービスまでをたどります。"
+      },
+      {
+        "id": "tls",
+        "label": "DNS と証明書",
+        "focus": [
+          "dns",
+          "clients",
+          "edge"
+        ],
+        "note": "Cloudflare が DNS を提供し、Edge Traefik が TLS を終端して DNS-01 で証明書を取得します。"
+      },
+      {
+        "id": "private",
+        "label": "プライベート管理",
+        "focus": [
+          "admin",
+          "tailnet",
+          "management"
+        ],
+        "note": "LAN または Tailscale 経由で管理画面にアクセスします。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "dns",
+      "type": "cloud",
+      "label": "Cloudflare DNS",
+      "sublabel": "DNS-only · DNS-01",
+      "pos": [
+        60,
+        90
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "clients",
+      "type": "external",
+      "label": "ブラウザー・ネイティブApp",
+      "sublabel": "Web · 同期 · API",
+      "pos": [
+        60,
+        330
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "gateway",
+      "type": "security",
+      "label": "UniFi Gateway",
+      "sublabel": "WAN → LAN",
+      "pos": [
+        410,
+        330
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "edge",
+      "type": "security",
+      "label": "Pangolin + Traefik",
+      "sublabel": "Edge VM · 公開 TLS",
+      "pos": [
+        770,
+        330
+      ],
+      "size": [
+        240,
+        80
+      ]
+    },
+    {
+      "id": "apps",
+      "type": "backend",
+      "label": "Coolify",
+      "sublabel": "Apps VM · Web と API",
+      "pos": [
+        1090,
+        180
+      ],
+      "size": [
+        240,
+        80
+      ]
+    },
+    {
+      "id": "unraid",
+      "type": "database",
+      "label": "Unraid",
+      "sublabel": "コンテナ · データ · VM",
+      "pos": [
+        1090,
+        460
+      ],
+      "size": [
+        240,
+        80
+      ]
+    },
+    {
+      "id": "admin",
+      "type": "external",
+      "label": "管理端末",
+      "sublabel": "許可された端末",
+      "pos": [
+        60,
+        600
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "tailnet",
+      "type": "security",
+      "label": "LAN / Tailscale",
+      "sublabel": "プライベート管理網",
+      "pos": [
+        410,
+        600
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "management",
+      "type": "backend",
+      "label": "管理画面",
+      "sublabel": "Pangolin · Coolify · Unraid",
+      "pos": [
+        770,
+        600
+      ],
+      "size": [
+        290,
+        80
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "clients",
+      "to": "dns",
+      "label": "DNS 問い合わせ",
+      "variant": "dashed"
+    },
+    {
+      "from": "clients",
+      "to": "gateway",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "from": "edge",
+      "to": "dns",
+      "label": "ACME DNS-01",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "right"
+    },
+    {
+      "from": "gateway",
+      "to": "edge",
+      "label": "TCP 80 / 443",
+      "variant": "emphasis"
+    },
+    {
+      "from": "edge",
+      "to": "apps",
+      "label": "HTTP :80",
+      "variant": "emphasis"
+    },
+    {
+      "from": "edge",
+      "to": "unraid",
+      "label": "サービスルート",
+      "variant": "emphasis"
+    },
+    {
+      "from": "admin",
+      "to": "tailnet",
+      "label": "限定アクセス",
+      "variant": "security"
+    },
+    {
+      "from": "tailnet",
+      "to": "management",
+      "label": "管理",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "入口と証明書",
+      "items": [
+        "kitsunezu.com：個人サイト；kitsunet.app：Homelab サービス",
+        "DNS は自宅 WAN を参照；Traefik が DNS-01 で TLS 証明書を取得",
+        "管理画面へは LAN / Tailscale からアクセス"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Coolify アプリ",
+      "items": [
+        "Portfolio · Eventernote Dashboard",
+        "Eventernote Autofill · Voiceprint Search",
+        "専用 Apps VM と内部 Traefik プロキシ"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Unraid と管理",
+      "items": [
+        "Nextcloud · Immich · Vaultwarden",
+        "n8n · Sub2API · Homarr",
+        "Unraid が両 VM とデータサービスを管理"
+      ]
+    }
+  ]
+}

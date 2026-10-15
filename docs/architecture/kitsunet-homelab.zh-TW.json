@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Kitsunet Homelab 架構",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1390,
+      750
+    ],
+    "views": [
+      {
+        "id": "public",
+        "label": "公開服務",
+        "focus": [
+          "clients",
+          "gateway",
+          "edge",
+          "apps",
+          "unraid"
+        ],
+        "note": "從公開 HTTPS 入口追蹤至應用與資料服務。"
+      },
+      {
+        "id": "tls",
+        "label": "DNS 與憑證",
+        "focus": [
+          "dns",
+          "clients",
+          "edge"
+        ],
+        "note": "Cloudflare 提供 DNS；Edge Traefik 終止 TLS 並透過 DNS-01 取得憑證。"
+      },
+      {
+        "id": "private",
+        "label": "私人管理",
+        "focus": [
+          "admin",
+          "tailnet",
+          "management"
+        ],
+        "note": "管理介面經 LAN 或 Tailscale 存取。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "dns",
+      "type": "cloud",
+      "label": "Cloudflare DNS",
+      "sublabel": "DNS-only · DNS-01",
+      "pos": [
+        60,
+        90
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "clients",
+      "type": "external",
+      "label": "瀏覽器與原生 App",
+      "sublabel": "網站 · 同步 · API",
+      "pos": [
+        60,
+        330
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "gateway",
+      "type": "security",
+      "label": "UniFi Gateway",
+      "sublabel": "WAN → LAN",
+      "pos": [
+        410,
+        330
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "edge",
+      "type": "security",
+      "label": "Pangolin + Traefik",
+      "sublabel": "Edge VM · 公開 TLS",
+      "pos": [
+        770,
+        330
+      ],
+      "size": [
+        240,
+        80
+      ]
+    },
+    {
+      "id": "apps",
+      "type": "backend",
+      "label": "Coolify",
+      "sublabel": "Apps VM · 網站與 API",
+      "pos": [
+        1090,
+        180
+      ],
+      "size": [
+        240,
+        80
+      ]
+    },
+    {
+      "id": "unraid",
+      "type": "database",
+      "label": "Unraid",
+      "sublabel": "容器 · 資料 · VM",
+      "pos": [
+        1090,
+        460
+      ],
+      "size": [
+        240,
+        80
+      ]
+    },
+    {
+      "id": "admin",
+      "type": "external",
+      "label": "管理裝置",
+      "sublabel": "授權裝置",
+      "pos": [
+        60,
+        600
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "tailnet",
+      "type": "security",
+      "label": "LAN / Tailscale",
+      "sublabel": "私人管理網路",
+      "pos": [
+        410,
+        600
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "management",
+      "type": "backend",
+      "label": "管理介面",
+      "sublabel": "Pangolin · Coolify · Unraid",
+      "pos": [
+        770,
+        600
+      ],
+      "size": [
+        290,
+        80
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "clients",
+      "to": "dns",
+      "label": "DNS 查詢",
+      "variant": "dashed"
+    },
+    {
+      "from": "clients",
+      "to": "gateway",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "from": "edge",
+      "to": "dns",
+      "label": "ACME DNS-01",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "right"
+    },
+    {
+      "from": "gateway",
+      "to": "edge",
+      "label": "TCP 80 / 443",
+      "variant": "emphasis"
+    },
+    {
+      "from": "edge",
+      "to": "apps",
+      "label": "HTTP :80",
+      "variant": "emphasis"
+    },
+    {
+      "from": "edge",
+      "to": "unraid",
+      "label": "服務路由",
+      "variant": "emphasis"
+    },
+    {
+      "from": "admin",
+      "to": "tailnet",
+      "label": "私人存取",
+      "variant": "security"
+    },
+    {
+      "from": "tailnet",
+      "to": "management",
+      "label": "管理",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "入口與憑證",
+      "items": [
+        "kitsunezu.com：個人網站；kitsunet.app：Homelab 服務",
+        "DNS 指向家用 WAN；Traefik 透過 DNS-01 取得 TLS 憑證",
+        "管理介面經 LAN / Tailscale 存取"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Coolify 應用",
+      "items": [
+        "Portfolio · Eventernote Dashboard",
+        "Eventernote Autofill · Voiceprint Search",
+        "獨立 Apps VM 與內部 Traefik 代理"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Unraid 與管理",
+      "items": [
+        "Nextcloud · Immich · Vaultwarden",
+        "n8n · Sub2API · Homarr",
+        "Unraid 承載兩台 VM，並管理資料服務"
+      ]
+    }
+  ]
+}

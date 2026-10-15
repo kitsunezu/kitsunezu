@@ -1,0 +1,68 @@
+[
+  {
+    "locale": "en",
+    "diagram_type": "architecture",
+    "output": "public/architecture/kitsunet-homelab.en.html",
+    "specification": {
+      "sha256": "7b51cd64b50d093f62c547593defd8c9b97d0cc10102e2d2434f4a91b7810b9b",
+      "bytes": 4964
+    },
+    "archify_artifact": {
+      "sha256": "51a349b53291fa01b380302f917bd0d1db73ab044073e028e1a5efee54783584",
+      "bytes": 809750
+    },
+    "integrated_artifact": {
+      "sha256": "51a349b53291fa01b380302f917bd0d1db73ab044073e028e1a5efee54783584",
+      "bytes": 809750
+    },
+    "validation": {
+      "checksPassed": 9,
+      "errors": 0,
+      "warnings": 0
+    }
+  },
+  {
+    "locale": "zh-TW",
+    "diagram_type": "architecture",
+    "output": "public/architecture/kitsunet-homelab.zh-TW.html",
+    "specification": {
+      "sha256": "6d2387c904c2dfc119bcb339f5d25fd0a215634132b25f93fe6d3c2ccfe23154",
+      "bytes": 4851
+    },
+    "archify_artifact": {
+      "sha256": "fca56ce2355d8d94e85b7961227a7f9a092be44f76c77a08b9dddb87c51d6108",
+      "bytes": 809496
+    },
+    "integrated_artifact": {
+      "sha256": "467d94fd3589120837072f4efa798196daa10eaf4baf2e0f1f04a01ef9f5abc2",
+      "bytes": 809502
+    },
+    "validation": {
+      "checksPassed": 9,
+      "errors": 0,
+      "warnings": 0
+    }
+  },
+  {
+    "locale": "ja",
+    "diagram_type": "architecture",
+    "output": "public/architecture/kitsunet-homelab.ja.html",
+    "specification": {
+      "sha256": "aba9ba74de0197e264a2fcb9b625b73219010f3572e3e175b4cbadb3ed63056a",
+      "bytes": 5075
+    },
+    "archify_artifact": {
+      "sha256": "0dfb398610ec8bb53f4e03e84e1f4d09ee0656a28c408e6aa9303842a8d1321d",
+      "bytes": 809876
+    },
+    "integrated_artifact": {
+      "sha256": "d9a9bdc9fecfe58b0b0ee26198f64dc96508404a18312bfe2f85340ee83070f4",
+      "bytes": 809876
+    },
+    "validation": {
+      "checksPassed": 9,
+      "errors": 0,
+      "warnings": 0
+    }
+  }
+]

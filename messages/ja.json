@@ -22,6 +22,7 @@
     "heading": "自己紹介",
     "architecture_caption": "Homelab 構成",
     "architecture": {
+      "title": "Kitsunet Homelab の構成図",
       "open": "完全な図を見る"
     },
     "description": "クリーンでスケーラブルなウェブアプリケーションの構築に情熱を注ぐフルスタック開発者です。ReactによるピクセルパーフェクトなUI構築から、Java Spring BootやNode.jsによる堅牢なバックエンドシステムの設計まで、スタック全体で働くことを楽しんでいます。仕事以外では、自宅サーバーを運用し、新しい技術の探求を楽しんでいます。"

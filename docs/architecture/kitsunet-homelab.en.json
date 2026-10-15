@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Kitsunet Homelab Architecture",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1390,
+      750
+    ],
+    "views": [
+      {
+        "id": "public",
+        "label": "Public services",
+        "focus": [
+          "clients",
+          "gateway",
+          "edge",
+          "apps",
+          "unraid"
+        ],
+        "note": "Trace public HTTPS access to apps and data services."
+      },
+      {
+        "id": "tls",
+        "label": "DNS & certificates",
+        "focus": [
+          "dns",
+          "clients",
+          "edge"
+        ],
+        "note": "Cloudflare provides DNS; Edge Traefik terminates TLS and obtains certificates via DNS-01."
+      },
+      {
+        "id": "private",
+        "label": "Private management",
+        "focus": [
+          "admin",
+          "tailnet",
+          "management"
+        ],
+        "note": "Access management interfaces over LAN or Tailscale."
+      }
+    ],
+    "locale": "en"
+  },
+  "components": [
+    {
+      "id": "dns",
+      "type": "cloud",
+      "label": "Cloudflare DNS",
+      "sublabel": "DNS-only · DNS-01",
+      "pos": [
+        60,
+        90
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "clients",
+      "type": "external",
+      "label": "Browsers & native apps",
+      "sublabel": "Web · Sync · APIs",
+      "pos": [
+        60,
+        330
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "gateway",
+      "type": "security",
+      "label": "UniFi Gateway",
+      "sublabel": "WAN → LAN",
+      "pos": [
+        410,
+        330
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "edge",
+      "type": "security",
+      "label": "Pangolin + Traefik",
+      "sublabel": "Edge VM · Public TLS",
+      "pos": [
+        770,
+        330
+      ],
+      "size": [
+        240,
+        80
+      ]
+    },
+    {
+      "id": "apps",
+      "type": "backend",
+      "label": "Coolify",
+      "sublabel": "Apps VM · Sites & APIs",
+      "pos": [
+        1090,
+        180
+      ],
+      "size": [
+        240,
+        80
+      ]
+    },
+    {
+      "id": "unraid",
+      "type": "database",
+      "label": "Unraid",
+      "sublabel": "Containers · Data · VMs",
+      "pos": [
+        1090,
+        460
+      ],
+      "size": [
+        240,
+        80
+      ]
+    },
+    {
+      "id": "admin",
+      "type": "external",
+      "label": "Admin devices",
+      "sublabel": "Authorized devices",
+      "pos": [
+        60,
+        600
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "tailnet",
+      "type": "security",
+      "label": "LAN / Tailscale",
+      "sublabel": "Private management network",
+      "pos": [
+        410,
+        600
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "management",
+      "type": "backend",
+      "label": "Management interfaces",
+      "sublabel": "Pangolin · Coolify · Unraid",
+      "pos": [
+        770,
+        600
+      ],
+      "size": [
+        290,
+        80
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "clients",
+      "to": "dns",
+      "label": "DNS query",
+      "variant": "dashed"
+    },
+    {
+      "from": "clients",
+      "to": "gateway",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "from": "edge",
+      "to": "dns",
+      "label": "ACME DNS-01",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "right"
+    },
+    {
+      "from": "gateway",
+      "to": "edge",
+      "label": "TCP 80 / 443",
+      "variant": "emphasis"
+    },
+    {
+      "from": "edge",
+      "to": "apps",
+      "label": "HTTP :80",
+      "variant": "emphasis"
+    },
+    {
+      "from": "edge",
+      "to": "unraid",
+      "label": "Service routing",
+      "variant": "emphasis"
+    },
+    {
+      "from": "admin",
+      "to": "tailnet",
+      "label": "Private access",
+      "variant": "security"
+    },
+    {
+      "from": "tailnet",
+      "to": "management",
+      "label": "Administration",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Access & certificates",
+      "items": [
+        "kitsunezu.com: personal site; kitsunet.app: Homelab services",
+        "DNS points to home WAN; Traefik obtains TLS certificates via DNS-01",
+        "Management interfaces use LAN / Tailscale"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Coolify apps",
+      "items": [
+        "Portfolio · Eventernote Dashboard",
+        "Eventernote Autofill · Voiceprint Search",
+        "Dedicated Apps VM with an internal Traefik proxy"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Unraid & management",
+      "items": [
+        "Nextcloud · Immich · Vaultwarden",
+        "n8n · Sub2API · Homarr",
+        "Unraid hosts both VMs and manages data services"
+      ]
+    }
+  ]
+}

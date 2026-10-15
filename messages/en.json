@@ -22,6 +22,7 @@
     "heading": "About Me",
     "architecture_caption": "Homelab Architecture",
     "architecture": {
+      "title": "Kitsunet Homelab architecture",
       "open": "Explore full diagram"
     },
     "description": "I'm a Full Stack Developer with a passion for building clean, scalable web applications. I enjoy working across the stack — from crafting pixel-perfect UIs with React to designing robust backend systems with Java Spring Boot and Node.js. Outside of work, I run a homelab and love exploring new technologies."
