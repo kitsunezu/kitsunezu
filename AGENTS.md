@@ -6,9 +6,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Deployment
 
-- Pushes to `master` run `.github/workflows/deploy.yml`: install, lint, build, audit production dependencies, build and scan the exact candidate image, push `ghcr.io/kitsunezu/kitsunezu-portfolio`, then call the Portainer API to redeploy stack `34` on endpoint `3`.
-- Keep the Portainer API key in the `PORTAINER_API_KEY` GitHub Actions secret only; do not commit it.
-- Portainer sits behind Cloudflare Access. The deploy workflow must pass the service token stored in `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` GitHub Actions secrets.
+- Pushes to `master` run `.github/workflows/deploy.yml`: install, lint, build, audit production dependencies, build and scan the exact candidate image, push `ghcr.io/kitsunezu/kitsunezu-portfolio`, then join Tailscale with a repository-scoped GitHub OIDC identity and call Coolify's deploy API for the portfolio resource.
+- Required GitHub Actions secrets are `TS_OAUTH_CLIENT_ID`, `TS_AUDIENCE`, and the Coolify `COOLIFY_DEPLOY_TOKEN`. Do not commit their values.
 - Production npm audit blocks High/Critical findings. Trivy blocks fixed and unfixed High/Critical OS/library findings before image push; `.trivyignore` has no active exceptions, and any future exception requires a CVE, rationale, owner, expiry date, and review.
 
 ## Dependencies
@@ -19,3 +18,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Docker build and runner stages use digest-pinned Node.js 24 LTS images. Refresh the official `node:24-slim` and `node:24-alpine` digests deliberately when updating base-image security fixes.
 - The production runner applies `apk upgrade --no-cache` before removing npm, npx, and Yarn so Alpine security fixes are included in the candidate image.
 - The production runner intentionally removes npm, npx, and Yarn; `node server.js` is the only runtime entrypoint.
+
+## Deployment verification
+
+- Production builds receive `BUILD_REVISION` from the exact GitHub commit. The workflow polls public release/health endpoints until their revision matches that commit; an old healthy image cannot satisfy deployment success.
+- The live Coolify Compose resource is managed separately from the repository example. App images must use `pull_policy: always`; preserve the existing persistent volumes and runtime environment when editing it.
+- Repository Compose files are examples; runtime changes must be applied deliberately in the existing Coolify resource. CI publishes images and redeploys that saved definition; it does not import example Compose or recreate database volumes.
