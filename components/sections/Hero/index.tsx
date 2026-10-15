@@ -12,17 +12,15 @@ interface HeroProps {
   title: string;
 }
 
-export function Hero({ name, title }: HeroProps) {
-  const t = useTranslations("hero");
+function AnimatedName({ name }: { name: string }) {
   const [displayedName, setDisplayedName] = useState("");
   const [typingDone, setTypingDone] = useState(false);
 
   useEffect(() => {
-    setDisplayedName("");
-    setTypingDone(false);
     let index = 0;
+    let interval: ReturnType<typeof setInterval> | undefined;
     const startTimer = setTimeout(() => {
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         index++;
         setDisplayedName(name.slice(0, index));
         if (index >= name.length) {
@@ -30,10 +28,32 @@ export function Hero({ name, title }: HeroProps) {
           setTypingDone(true);
         }
       }, 80);
-      return () => clearInterval(interval);
     }, 300);
-    return () => clearTimeout(startTimer);
+    return () => {
+      clearTimeout(startTimer);
+      if (interval) clearInterval(interval);
+    };
   }, [name]);
+  return (
+    <>
+      {displayedName}
+      <motion.span
+        animate={typingDone ? { opacity: 0 } : { opacity: [1, 0, 1] }}
+        transition={
+          typingDone
+            ? { duration: 0.3, delay: 1.5 }
+            : { repeat: Infinity, duration: 0.8, ease: "linear" }
+        }
+        className="ml-1 inline-block"
+      >
+        |
+      </motion.span>
+    </>
+  );
+}
+
+export function Hero({ name, title }: HeroProps) {
+  const t = useTranslations("hero");
 
   return (
     <section
@@ -45,18 +65,7 @@ export function Hero({ name, title }: HeroProps) {
           {t("greeting")}
         </p>
         <h1 className="mt-2 text-5xl font-bold tracking-tight sm:text-7xl">
-          {displayedName}
-          <motion.span
-            animate={typingDone ? { opacity: 0 } : { opacity: [1, 0, 1] }}
-            transition={
-              typingDone
-                ? { duration: 0.3, delay: 1.5 }
-                : { repeat: Infinity, duration: 0.8, ease: "linear" }
-            }
-            className="ml-1 inline-block"
-          >
-            |
-          </motion.span>
+          <AnimatedName key={name} name={name} />
         </h1>
         <p className="mt-4 text-2xl font-medium text-primary/80 sm:text-3xl">
           {title}

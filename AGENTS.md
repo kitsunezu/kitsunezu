@@ -6,9 +6,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Deployment
 
-- Pushes to `master` run `.github/workflows/deploy.yml`: install, lint, build, audit production dependencies, build and scan the exact candidate image, push `ghcr.io/kitsunezu/kitsunezu-portfolio`, then call the Portainer API to redeploy stack `34` on endpoint `3`.
-- Keep the Portainer API key in the `PORTAINER_API_KEY` GitHub Actions secret only; do not commit it.
-- Portainer sits behind Cloudflare Access. The deploy workflow must pass the service token stored in `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` GitHub Actions secrets.
+- Pushes to `master` run `.github/workflows/deploy.yml`: install, lint, build, audit production dependencies, build and scan the exact candidate image, push `ghcr.io/kitsunezu/kitsunezu-portfolio`, then join Tailscale with a repository-scoped GitHub OIDC identity and call Coolify's deploy API for the portfolio resource.
+- Required GitHub Actions secrets are `TS_OAUTH_CLIENT_ID`, `TS_AUDIENCE`, and the Coolify `COOLIFY_DEPLOY_TOKEN`. Do not commit their values.
 - Production npm audit blocks High/Critical findings. Trivy blocks fixed and unfixed High/Critical OS/library findings before image push; `.trivyignore` has no active exceptions, and any future exception requires a CVE, rationale, owner, expiry date, and review.
 
 ## Dependencies

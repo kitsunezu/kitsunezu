@@ -11,11 +11,13 @@ concurrency:
 
 jobs:
   secure-deploy:
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: read
       packages: write
+      id-token: write
 
     env:
       IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/kitsunezu-portfolio
@@ -81,29 +83,43 @@ jobs:
           docker push "$IMAGE_NAME:latest"
           docker push "$IMAGE_NAME:$short_sha"
 
-      - name: Trigger Portainer redeploy
-        env:
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
-          PORTAINER_API_KEY: ${{ secrets.PORTAINER_API_KEY }}
-          PORTAINER_BASE_URL: https://portainer.kitsunet.app
-          PORTAINER_STACK_ID: "34"
-          PORTAINER_ENDPOINT_ID: "3"
-        run: |
-          if [ -z "$PORTAINER_API_KEY" ]; then
-            echo "::error::PORTAINER_API_KEY secret is not configured"
-            exit 1
-          fi
-          if [ -z "$CF_ACCESS_CLIENT_ID" ] || [ -z "$CF_ACCESS_CLIENT_SECRET" ]; then
-            echo "::error::Cloudflare Access service token secrets are not configured"
-            exit 1
-          fi
+      - name: Connect to Kitsunet over Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          audience: ${{ secrets.TS_AUDIENCE }}
+          tags: tag:kitsunet-deploy
+          ping: 192.168.1.5
+          args: --accept-routes
+          version: 1.94.2
 
-          curl --fail-with-body --silent --show-error \
-            --request PUT \
-            --header "CF-Access-Client-ID: $CF_ACCESS_CLIENT_ID" \
-            --header "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" \
-            --header "X-API-Key: $PORTAINER_API_KEY" \
-            --header "Content-Type: application/json" \
-            --data '{"RepullImageAndRedeploy":true}' \
-            "$PORTAINER_BASE_URL/api/stacks/$PORTAINER_STACK_ID/git/redeploy?endpointId=$PORTAINER_ENDPOINT_ID"
+      - name: Deploy to Coolify
+        env:
+          COOLIFY_API_TOKEN: ${{ secrets.COOLIFY_DEPLOY_TOKEN }}
+          COOLIFY_URL: http://192.168.1.5:8000
+          COOLIFY_SERVICE_UUID: "qm6hv31itwbshrhetrrqhm2u"
+        run: |
+          set -euo pipefail
+          response_file="$(mktemp)"
+          trap 'rm -f "$response_file"' EXIT
+          status="$(curl --silent --show-error \
+            --connect-timeout 10 --max-time 60 \
+            --output "$response_file" \
+            --write-out '%{http_code}' \
+            --request POST \
+            --header "Authorization: Bearer $COOLIFY_API_TOKEN" \
+            "$COOLIFY_URL/api/v1/deploy?uuid=$COOLIFY_SERVICE_UUID&force=false")"
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            echo "::error::Coolify deploy request failed (HTTP $status)"
+            exit 1
+          fi
+          if ! jq --exit-status --arg uuid "$COOLIFY_SERVICE_UUID" '
+            .deployments | length == 1 and
+            .[0].resource_uuid == $uuid and
+            (.[0].message | startswith("Service ") and
+              endswith(" started. It could take a while, be patient."))
+          ' "$response_file" >/dev/null 2>&1; then
+            echo "::error::Coolify did not confirm a start request for the expected service"
+            exit 1
+          fi
+          echo "Coolify accepted deployment request for commit $GITHUB_SHA"
